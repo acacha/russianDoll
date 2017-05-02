@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Matriushka;
+use Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Blade::directive('cache', function ($expression) {
+            return Matriushka::setUp($expression);
+        });
+
+        Blade::directive('endcache', function ($expression) {
+            return Matriushka::tearDown();
+        });
     }
 
     /**
