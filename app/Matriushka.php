@@ -7,16 +7,18 @@ use Cache;
 class Matriushka
 {
 
-    protected static $key;
+    protected static $keys = [];
 
     /**
      * @return string
      */
     public static function setUp($model)
     {
+        static::$keys[] = $key = $model->getCacheKey();
+
         ob_start();
-        static::$key = $model->getCacheKey();
-        return Cache::has(static::$key);
+
+        return Cache::tags('views')->has($key);
     }
 
     /**
@@ -24,12 +26,14 @@ class Matriushka
      */
     public static function tearDown()
     {
-//        $html = "prova";
+        $key = array_pop(static::$keys);
 
         $html  = ob_get_clean();
 
-
-        echo $html;
+        return Cache::tags('views')
+            ->rememberForever($key, function () use ($html) {
+                return $html;
+        });
     }
 
 }
